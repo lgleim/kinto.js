@@ -41,7 +41,7 @@ export function sortObjects(order: string, list: any[]): any[] {
  *
  * @param  {Object} filters  The filters object.
  * @param  {Object} entry    The object to filter.
- * @return {Boolen}
+ * @return {Boolean}
  */
 export function filterObject(filters: Object, entry: Object): boolean {
   return Object.keys(filters).every(filter => {

@@ -223,7 +223,6 @@ export interface CollectionOptions {
  * CRUD operations and synchronization helpers.
  */
 export default class Collection {
-
   private _bucket;
   private _name;
   private _lastModified;
@@ -234,7 +233,6 @@ export default class Collection {
   public  remoteTransformers;
   public  hooks;
   public  localFields;
-
 
   /**
    * Constructor.

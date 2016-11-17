@@ -13,10 +13,10 @@ const INDEXED_FIELDS = ["id", "_status", "last_modified"];
 const cursorHandlers = {
   all(filters: Object, done: (x: any[]) => any) {
     const results: any[] = [];
-    return function (event) {
+    return function(event) {
       const cursor = event.target.result;
       if (cursor) {
-        if (filterObject(filters, cursor.value)) {
+        if(filterObject(filters, cursor.value)){
           results.push(cursor.value);
         }
         cursor.continue();
@@ -32,7 +32,7 @@ const cursorHandlers = {
     }
     const sortedValues = [].slice.call(values).sort();
     const results: any[] = [];
-    return function (event) {
+    return function(event) {
       const cursor = event.target.result;
       if (!cursor) {
         done(results);
@@ -120,10 +120,7 @@ export default class IDB extends BaseAdapter {
    */
   constructor(dbname: string) {
     super();
-    delete this._db;
-    if (this._db){
-      console.log("_db not null in IDB.ts - Dereferencing previous instance failed")
-    }
+    this._db = (null as any);
     // public properties
     /**
      * The database name.
@@ -187,10 +184,7 @@ export default class IDB extends BaseAdapter {
   close() {
     if (this._db) {
       this._db.close(); // indexedDB.close is synchronous
-      delete this._db;
-      if (this._db){
-        console.log("_db not null in IDB.ts - Dereferencing previous instance failed")
-      }
+      this._db = (null as any);
     }
     return super.close();
   }
@@ -217,7 +211,7 @@ export default class IDB extends BaseAdapter {
     const transaction = mode ? this._db.transaction([storeName], mode)
       : this._db.transaction([storeName]);
     const store = transaction.objectStore(storeName);
-    return { transaction, store };
+    return {transaction, store};
   }
 
   /**
@@ -232,7 +226,7 @@ export default class IDB extends BaseAdapter {
       return new Promise((resolve, reject) => {
         const {transaction, store} = this.prepare("readwrite");
         store.clear();
-        transaction.onerror = event => reject((event.target as IDBRequest).error);
+        transaction.onerror = event => reject(new Error((event.target as IDBRequest).error as any));
         transaction.oncomplete = () => resolve();
       });
     } catch (e) {
@@ -308,7 +302,7 @@ export default class IDB extends BaseAdapter {
           reject(new Error("execute() callback should not return a Promise."));
         }
         // XXX unsure if we should manually abort the transaction on error
-        transaction.onerror = event => reject((event.target as IDBRequest).error);
+        transaction.onerror = event => reject(new Error((event.target as IDBRequest).error as any));
         transaction.oncomplete = event => resolve(result);
       });
     });
@@ -327,10 +321,10 @@ export default class IDB extends BaseAdapter {
       return new Promise((resolve, reject) => {
         const {transaction, store} = this.prepare();
         const request = store.get(id);
-        transaction.onerror = event => reject((event.target as IDBRequest).error);
+        transaction.onerror = event => reject(new Error((event.target as IDBRequest).error as any));
         transaction.oncomplete = () => resolve(request.result);
       });
-    } catch (e) {
+    } catch(e) {
       this._handleError("get", e);
     }
   }
@@ -358,7 +352,7 @@ export default class IDB extends BaseAdapter {
           // current scope
           results = _results;
         });
-        transaction.onerror = event => reject((event.target as IDBRequest).error);
+        transaction.onerror = event => reject(new Error((event.target as IDBRequest).error as any));
         transaction.oncomplete = event => resolve(results);
       });
 
@@ -383,7 +377,7 @@ export default class IDB extends BaseAdapter {
     return new Promise((resolve, reject) => {
       const {transaction, store} = this.prepare("readwrite", "__meta__");
       store.put({ name: "lastModified", value: value });
-      transaction.onerror = event => reject((event.target as IDBRequest).error);
+      transaction.onerror = event => reject((event.target as IDBRequest).error as any);
       transaction.oncomplete = event => resolve(value as number);
     });
   }
@@ -399,7 +393,7 @@ export default class IDB extends BaseAdapter {
     return new Promise((resolve, reject) => {
       const {transaction, store} = this.prepare(undefined, "__meta__");
       const request = store.get("lastModified");
-      transaction.onerror = event => reject((event.target as IDBRequest).error);
+      transaction.onerror = event => reject((event.target as IDBRequest).error as any);
       transaction.oncomplete = event => {
         resolve(request.result && request.result.value || null);
       };
